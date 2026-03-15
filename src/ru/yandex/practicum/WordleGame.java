@@ -74,12 +74,10 @@ public class WordleGame {
             if (String.valueOf(userWord.charAt(i)).equals(String.valueOf(answer.charAt(i)))) {
                 builder.append("+");
                 matchedLetters.put(i, String.valueOf(userWord.charAt(i)));
-            }
-            else if (answer.contains(String.valueOf(userWord.charAt(i)))) {
+            } else if (answer.contains(String.valueOf(userWord.charAt(i)))) {
                 builder.append("^");
                 existsLetters.add(String.valueOf(userWord.charAt(i)));
-            }
-            else {
+            } else {
                 builder.append("-");
                 wrongLetters.add(String.valueOf(userWord.charAt(i)));
             }
