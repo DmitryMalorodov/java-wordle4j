@@ -41,7 +41,7 @@ public class WordleGame {
         isGameActive = --steps != 0;
 
         if (!isGameActive) {
-            throw new TerminateGameException(STR."Количество попыток закончилось! Верный ответ - '\{answer}'");
+            throw new TerminateGameException("Количество попыток закончилось! Верный ответ - " + answer);
         }
     }
 

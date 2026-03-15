@@ -76,7 +76,7 @@ public class GameTest extends TestData {
         } catch (NotValidWordException | WordDoesNotExistsException _) {}
 
         isTrue(result,
-                STR."Ошибка! Ожидаемое валидное слово '\{validWord}' фактически не валидно");
+                String.format("Ошибка! Ожидаемое валидное слово '%s' фактически не валидно", validWord));
     }
 
     private static List<String> getNotValidWords() {
@@ -101,7 +101,7 @@ public class GameTest extends TestData {
         } catch (NotValidWordException | WordDoesNotExistsException _) {}
 
         isFalse(result,
-                STR."Ошибка! Ожидаемое не валидное слово '\{notValidWord}' фактически валидно");
+                String.format("Ошибка! Ожидаемое не валидное слово '%s' фактически валидно", notValidWord));
     }
 
     @Test
