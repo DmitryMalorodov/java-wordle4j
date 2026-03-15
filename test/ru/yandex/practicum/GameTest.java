@@ -22,7 +22,7 @@ public class GameTest extends TestData {
     public void checkGameTerminateBySteps() {
         try {
             wordleGame.decrementSteps();
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isFalse(wordleGame.getGameActive(), "Игра не завершилась по истечении попыток!");
     }
@@ -32,7 +32,7 @@ public class GameTest extends TestData {
     public void checkGameTerminateByCorrectWord() {
         try {
             wordleGame.checkUserWord(wordleGame.getAnswer());
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isFalse(wordleGame.getGameActive(), "Игра не завершилась после угаданного слова!");
     }
@@ -53,7 +53,7 @@ public class GameTest extends TestData {
         String actMask = "";
         try {
             actMask = wordleGame.checkUserWord(answer);
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isEqual(expMask, actMask,
                 "Ожидаемая маска '%s' отличается от фактической '%s'");
@@ -73,7 +73,7 @@ public class GameTest extends TestData {
         boolean result = false;
         try {
             result = wordleGame.isWordValid(validWord);
-        } catch (NotValidWordException | WordDoesNotExistsException _) {}
+        } catch (NotValidWordException | WordDoesNotExistsException e) {}
 
         isTrue(result,
                 String.format("Ошибка! Ожидаемое валидное слово '%s' фактически не валидно", validWord));
@@ -98,7 +98,7 @@ public class GameTest extends TestData {
         boolean result = false;
         try {
             result = wordleGame.isWordValid(notValidWord);
-        } catch (NotValidWordException | WordDoesNotExistsException _) {}
+        } catch (NotValidWordException | WordDoesNotExistsException e) {}
 
         isFalse(result,
                 String.format("Ошибка! Ожидаемое не валидное слово '%s' фактически валидно", notValidWord));
@@ -110,7 +110,7 @@ public class GameTest extends TestData {
         try {
             wordleGame.checkUserWord("ведла");
             wordleGame.getHelp();
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isFalse(wordleDictionary.getWords().stream()
                 .anyMatch(word -> word.contains("л") || word.contains("а")),
@@ -123,7 +123,7 @@ public class GameTest extends TestData {
         try {
             wordleGame.checkUserWord("девла");
             wordleGame.getHelp();
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isTrue(wordleDictionary.getWords().stream()
                 .allMatch(word -> word.contains("в") && word.contains("е") && word.contains("д")),
@@ -136,7 +136,7 @@ public class GameTest extends TestData {
         try {
             wordleGame.checkUserWord("ааара");
             wordleGame.getHelp();
-        } catch (TerminateGameException _) {}
+        } catch (TerminateGameException e) {}
 
         isTrue(wordleDictionary.getWords().stream()
                         .allMatch(word -> String.valueOf(word.charAt(3)).equals("р")),
