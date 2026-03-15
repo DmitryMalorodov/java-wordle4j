@@ -1,42 +1,47 @@
 package ru.yandex.practicum;
 
-import ru.yandex.practicum.exceptions.NotValidWordException;
+import ru.yandex.practicum.exceptions.error.DownloadException;
+import ru.yandex.practicum.exceptions.error.NoWordsInDictionaryException;
+import ru.yandex.practicum.exceptions.info.NotValidWordException;
+import ru.yandex.practicum.exceptions.info.TerminateGameException;
+import ru.yandex.practicum.exceptions.info.WordDoesNotExistsException;
+import ru.yandex.practicum.helpers.PrintLog;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
+
+import static ru.yandex.practicum.WordleDictionaryLoader.convertWord;
 
 /*
 в главном классе нам нужно:
     создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
+    создать заёгрузчик словарей WordleDictionaryLoader
     загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
     затем создать игру WordleGame и передать ей словарь
     вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
     вывести состояние игры и конечный результат
  */
 public class Wordle {
-    private static WordleDictionary wordleDictionary;
-    private static String randomWord;
+    private static final Scanner scanner = new Scanner(System.in);
     private static WordleGame game;
+    private static final int STEPS = 6;
 
     public static void main(String[] args) {
-        wordleDictionary = new WordleDictionaryLoader().getWordleDictionary();
-        randomWord = new WordleDictionaryLoader().getWordleDictionary().getRandomWord();
-        game = new WordleGame(randomWord, wordleDictionary, 6);
-
-        game();
+        try {
+            WordleDictionary wordleDictionary = new WordleDictionaryLoader().getWordleDictionary();
+            String randomWord = wordleDictionary.getRandomWord();
+            game = new WordleGame(randomWord, wordleDictionary, STEPS);
+            game();
+        } catch (DownloadException | NoWordsInDictionaryException e) {
+            System.out.println(e.getMessage());
+            PrintLog.printLog(e);
+        }
     }
 
     private static void game() {
         try {
             while (game.getGameActive()) {
                 System.out.println("Введите слово:");
-                Scanner scanner = new Scanner(System.in);
-                String userWord = scanner.nextLine().toLowerCase();
+                String userWord = convertWord(scanner.nextLine());
 
                 if (userWord.isEmpty()) {
                     userWord = game.getHelp();
@@ -47,16 +52,17 @@ public class Wordle {
                     }
                 }
 
-                game.decrementSteps();
-
+                //game.decrementSteps();
                 System.out.println(game.checkUserWord(userWord));
+                game.decrementSteps();
             }
-        } catch (NotValidWordException e) {
+        } catch (NotValidWordException | WordDoesNotExistsException e) {
             System.out.println(e.getMessage());
-            PrintLog.printLog(e.getMessage());
+            PrintLog.printLog(e);
             game();
-        } catch (Exception e) {
+        } catch (TerminateGameException e) {
             System.out.println(e.getMessage());
+            PrintLog.printLog(e);
         }
     }
 }

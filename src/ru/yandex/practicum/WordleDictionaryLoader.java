@@ -1,5 +1,8 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.exceptions.error.DownloadException;
+import ru.yandex.practicum.exceptions.error.NoWordsInDictionaryException;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,12 +18,13 @@ import java.util.stream.Collectors;
  */
 public class WordleDictionaryLoader {
     private static final String PATH = "words_ru.txt";
-    private static final List<String> dictionary = downloadDictionary();
+    private static List<String> dictionary;
+    private static final int WORDS_LENGTH = 5;
 
     /**
      * Считывание слов из файла
      */
-    private static List<String> downloadDictionary() {
+    private static void downloadDictionary() throws DownloadException, NoWordsInDictionaryException {
         List<String> words = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(PATH, StandardCharsets.UTF_8))) {
@@ -28,15 +32,20 @@ public class WordleDictionaryLoader {
                 words.add(reader.readLine());
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new DownloadException("Не удалось загрузить словарь!");
         }
 
-        return words;
+        if (words.isEmpty()) {
+            throw new NoWordsInDictionaryException("В словаре нет ни одного слова!");
+        }
+
+        dictionary = words;
     }
 
-    public WordleDictionary getWordleDictionary() {
+    public WordleDictionary getWordleDictionary() throws DownloadException, NoWordsInDictionaryException {
+        downloadDictionary();
         return new WordleDictionary(filterByFiveCharsQuantity().stream()
-                .map(this::convertWord)
+                .map(WordleDictionaryLoader::convertWord)
                 .collect(Collectors.toList()));
     }
 
@@ -45,7 +54,7 @@ public class WordleDictionaryLoader {
      */
     private static List<String> filterByFiveCharsQuantity() {
         return WordleDictionaryLoader.dictionary.stream()
-                .filter(word -> word.length() == 5)
+                .filter(word -> word.length() == WORDS_LENGTH)
                 .toList();
     }
 
@@ -54,7 +63,7 @@ public class WordleDictionaryLoader {
      * @param word - слово для конвертации
      * @return - обработанное слово
      */
-    private String convertWord(String word) {
+    public static String convertWord(String word) {
         return word.toLowerCase().replace("ё", "е");
     }
 }

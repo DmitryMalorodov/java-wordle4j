@@ -1,7 +1,9 @@
 package ru.yandex.practicum;
 
-import ru.yandex.practicum.exceptions.NotValidWordException;
-import ru.yandex.practicum.exceptions.TerminateGameException;
+import ru.yandex.practicum.exceptions.info.NotValidWordException;
+import ru.yandex.practicum.exceptions.info.TerminateGameException;
+import ru.yandex.practicum.exceptions.info.WordDoesNotExistsException;
+import ru.yandex.practicum.helpers.Helper;
 
 import java.util.*;
 
@@ -19,7 +21,7 @@ import java.util.*;
  */
 public class WordleGame {
 
-    private String answer;
+    private final String answer;
     private int steps;
     private WordleDictionary dictionary;
     private Boolean isGameActive = true;
@@ -39,12 +41,16 @@ public class WordleGame {
         isGameActive = --steps != 0;
 
         if (!isGameActive) {
-            throw new TerminateGameException("Количество попыток закончилось!");
+            throw new TerminateGameException(STR."Количество попыток закончилось! Верный ответ - '\{answer}'");
         }
     }
 
     public Boolean getGameActive() {
         return isGameActive;
+    }
+
+    public String getAnswer() {
+        return answer;
     }
 
     /**
@@ -83,19 +89,45 @@ public class WordleGame {
         return builder.toString();
     }
 
-    public boolean isWordValid(String word) throws NotValidWordException {
-        boolean isWordValid = word.length() == 5 && word.matches("^[А-Яа-я]+$");
+    public boolean isWordValid(String word) throws NotValidWordException, WordDoesNotExistsException {
+        boolean isWordValid = word.length() == 5 && word.matches("^[А-Яа-яЁё]+$");
         if (!isWordValid) {
             throw new NotValidWordException("Введенное слово не корректно, введите слово из пяти русских букв");
         }
 
+        isWordValid = dictionary.getWords().contains(word);
+        if (!isWordValid) {
+            throw new WordDoesNotExistsException("Введенное слово не существует в словаре!");
+        }
+
         return isWordValid;
-        //return word.length() == 5 && word.matches("^[А-Яа-я]+$");
     }
 
+    /**
+     * Получение слова-подсказки, с учетом ранее введенных верных и неверных букв,
+     * с учетом позиций угаданных букв и с учетом ранее введенных слов пользователем и ранее выданных подсказок
+     * @return - слово-подсказка
+     */
     public String getHelp() {
         List<String> dictionaryWords = dictionary.getWords();
 
+        //1. отсеивание слов из словаря с неверными буквами
+        //2. отсеивание слов из словаря у которых нет угаданных букв
+        //3. отсеивание слов из словаря у которых нет угаданных букв на верных позициях в слове
+        filterWordsByWrongLetters(dictionaryWords);
+        filterWordsByCorrectLetters(dictionaryWords);
+        filterWordsByCorrectLettersAndPosition(dictionaryWords);
+
+        dictionaryWords.removeAll(usersWords);
+
+        return dictionaryWords.get(Helper.getRandom(0, dictionaryWords.size()));
+    }
+
+    /**
+     * Отсеивание всех слов с неверными буквами
+     * @param dictionaryWords - словарь
+     */
+    private void filterWordsByWrongLetters(List<String> dictionaryWords) {
         //отсеивание слов из словаря с неверными буквами
         for (String word : new ArrayList<>(dictionaryWords)) {
             for (String letter : wrongLetters) {
@@ -105,7 +137,13 @@ public class WordleGame {
                 }
             }
         }
+    }
 
+    /**
+     * Отсеивание всех слов у которых нет угаданных букв
+     * @param dictionaryWords - словарь
+     */
+    private void filterWordsByCorrectLetters(List<String> dictionaryWords) {
         //отсеивание слов из словаря у которых нет угаданных букв
         for (String word : new ArrayList<>(dictionaryWords)) {
             for (String letter : existsLetters) {
@@ -115,7 +153,13 @@ public class WordleGame {
                 }
             }
         }
+    }
 
+    /**
+     * Отсеивание всех слов у которых нет угаданных букв на верных позициях в слове
+     * @param dictionaryWords - слове
+     */
+    private void filterWordsByCorrectLettersAndPosition(List<String> dictionaryWords) {
         for (String word : new ArrayList<>(dictionaryWords)) {
             for (Map.Entry<Integer, String> entry : matchedLetters.entrySet()) {
                 if (!String.valueOf(word.charAt(entry.getKey())).equals(entry.getValue())) {
@@ -124,9 +168,5 @@ public class WordleGame {
                 }
             }
         }
-
-        dictionaryWords.removeAll(usersWords);
-
-        return dictionaryWords.get(new Random().nextInt(0, dictionaryWords.size()));
     }
 }
