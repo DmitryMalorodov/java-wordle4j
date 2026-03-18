@@ -25,11 +25,14 @@ public class WordleGame {
     private int steps;
     private WordleDictionary dictionary;
     private Boolean isGameActive = true;
+    private List<String> dictionaryWords;
 
-    private List<String> usersWords = new ArrayList<>(); // слова которые ввел пользователь и подсказанные ему слова
+    private List<String> userWords = new ArrayList<>(); // слова которые ввел пользователь и подсказанные ему слова
     private Map<Integer, String> matchedLetters = new HashMap<>(); // верные буквы в верной позиции
     private Set<String> existsLetters = new HashSet<>(); // верные буквы в неверной позиции
     private Set<String> wrongLetters = new HashSet<>(); // неверные буквы
+
+    private static final int WORDS_LENGTH = 5;
 
     public WordleGame(String answer, WordleDictionary dictionary, int steps) {
         this.answer = answer;
@@ -37,12 +40,16 @@ public class WordleGame {
         this.steps = steps;
     }
 
-    public void decrementSteps() throws TerminateGameException {
+    public void decrementSteps() {
         isGameActive = --steps != 0;
 
         if (!isGameActive) {
-            throw new TerminateGameException("Количество попыток закончилось! Верный ответ - " + answer);
+            System.out.println("Количество попыток закончилось! Верный ответ - " + answer);
         }
+    }
+
+    public List<String> getDictionaryWords() {
+        return dictionaryWords;
     }
 
     public Boolean getGameActive() {
@@ -83,12 +90,12 @@ public class WordleGame {
             }
         }
 
-        usersWords.add(userWord);
+        userWords.add(userWord);
         return builder.toString();
     }
 
     public boolean isWordValid(String word) throws NotValidWordException, WordDoesNotExistsException {
-        boolean isWordValid = word.length() == 5 && word.matches("^[А-Яа-яЁё]+$");
+        boolean isWordValid = word.length() == WORDS_LENGTH && word.matches("^[А-Яа-яЁё]+$");
         if (!isWordValid) {
             throw new NotValidWordException("Введенное слово не корректно, введите слово из пяти русских букв");
         }
@@ -107,7 +114,7 @@ public class WordleGame {
      * @return - слово-подсказка
      */
     public String getHelp() {
-        List<String> dictionaryWords = dictionary.getWords();
+        dictionaryWords = new ArrayList<>(dictionary.getWords());
 
         //1. отсеивание слов из словаря с неверными буквами
         //2. отсеивание слов из словаря у которых нет угаданных букв
@@ -116,7 +123,7 @@ public class WordleGame {
         filterWordsByCorrectLetters(dictionaryWords);
         filterWordsByCorrectLettersAndPosition(dictionaryWords);
 
-        dictionaryWords.removeAll(usersWords);
+        dictionaryWords.removeAll(userWords);
 
         return dictionaryWords.get(Helper.getRandom(0, dictionaryWords.size()));
     }

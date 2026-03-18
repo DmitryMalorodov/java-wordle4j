@@ -20,9 +20,7 @@ public class GameTest extends TestData {
     @Test
     @DisplayName("Проверка завершения игры по истечению кол-ва попыток")
     public void checkGameTerminateBySteps() {
-        try {
-            wordleGame.decrementSteps();
-        } catch (TerminateGameException e) {}
+        wordleGame.decrementSteps();
 
         isFalse(wordleGame.getGameActive(), "Игра не завершилась по истечении попыток!");
     }
@@ -112,7 +110,7 @@ public class GameTest extends TestData {
             wordleGame.getHelp();
         } catch (TerminateGameException e) {}
 
-        isFalse(wordleDictionary.getWords().stream()
+        isFalse(wordleGame.getDictionaryWords().stream()
                 .anyMatch(word -> word.contains("л") || word.contains("а")),
                 "Есть слова в списке с буквами 'л' или/и 'а'");
     }
@@ -125,7 +123,7 @@ public class GameTest extends TestData {
             wordleGame.getHelp();
         } catch (TerminateGameException e) {}
 
-        isTrue(wordleDictionary.getWords().stream()
+        isTrue(wordleGame.getDictionaryWords().stream()
                 .allMatch(word -> word.contains("в") && word.contains("е") && word.contains("д")),
                 "Не у всех слов в списке есть буквы 'в' или/и 'е' или/и 'д'");
     }
@@ -138,7 +136,7 @@ public class GameTest extends TestData {
             wordleGame.getHelp();
         } catch (TerminateGameException e) {}
 
-        isTrue(wordleDictionary.getWords().stream()
+        isTrue(wordleGame.getDictionaryWords().stream()
                         .allMatch(word -> String.valueOf(word.charAt(3)).equals("р")),
                 "Не у всех слов в списке есть буква 'р' есть и стоит на верной позиции");
     }

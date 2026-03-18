@@ -1,6 +1,7 @@
 package ru.yandex.practicum;
 
 import ru.yandex.practicum.exceptions.error.DownloadException;
+import ru.yandex.practicum.exceptions.error.FileNotFoundException;
 import ru.yandex.practicum.exceptions.error.NoWordsInDictionaryException;
 import ru.yandex.practicum.exceptions.info.NotValidWordException;
 import ru.yandex.practicum.exceptions.info.TerminateGameException;
@@ -31,7 +32,7 @@ public class Wordle {
             String randomWord = wordleDictionary.getRandomWord();
             game = new WordleGame(randomWord, wordleDictionary, STEPS);
             game();
-        } catch (DownloadException | NoWordsInDictionaryException e) {
+        } catch (DownloadException | NoWordsInDictionaryException | FileNotFoundException e) {
             System.out.println(e.getMessage());
             PrintLog.printLog(e);
         }
@@ -52,7 +53,6 @@ public class Wordle {
                     }
                 }
 
-                //game.decrementSteps();
                 System.out.println(game.checkUserWord(userWord));
                 game.decrementSteps();
             }
