@@ -8,6 +8,7 @@ public class FileNotFoundException extends Exception implements Levelable {
     public FileNotFoundException(String message) {
         super(message);
     }
+
     @Override
     public String getLevel() {
         return LEVEL;
