@@ -39,8 +39,8 @@ public class Wordle {
     }
 
     private static void game() {
-        try {
-            while (game.getGameActive()) {
+        while (game.getGameActive()) {
+            try {
                 System.out.println("Введите слово:");
                 String userWord = convertWord(scanner.nextLine());
 
@@ -55,14 +55,10 @@ public class Wordle {
 
                 System.out.println(game.checkUserWord(userWord));
                 game.decrementSteps();
+            } catch (NotValidWordException | WordDoesNotExistsException | TerminateGameException e) {
+                System.out.println(e.getMessage());
+                PrintLog.printLog(e);
             }
-        } catch (NotValidWordException | WordDoesNotExistsException e) {
-            System.out.println(e.getMessage());
-            PrintLog.printLog(e);
-            game();
-        } catch (TerminateGameException e) {
-            System.out.println(e.getMessage());
-            PrintLog.printLog(e);
         }
     }
 }
