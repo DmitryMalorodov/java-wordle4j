@@ -27,9 +27,8 @@ public class WordleGame {
     private Boolean isGameActive = true;
     private List<String> dictionaryWords;
 
-    private List<String> userWords = new ArrayList<>(); // слова которые ввел пользователь и подсказанные ему слова
     private Map<Integer, String> matchedLetters = new HashMap<>(); // верные буквы в верной позиции
-    private Set<String> existsLetters = new HashSet<>(); // верные буквы в неверной позиции
+    private Map<Integer, String> existsLetters = new HashMap<>(); // верные буквы в неверной позиции
     private Set<String> wrongLetters = new HashSet<>(); // неверные буквы
 
     private static final int WORDS_LENGTH = 5;
@@ -83,14 +82,13 @@ public class WordleGame {
                 matchedLetters.put(i, String.valueOf(userWord.charAt(i)));
             } else if (answer.contains(String.valueOf(userWord.charAt(i)))) {
                 builder.append("^");
-                existsLetters.add(String.valueOf(userWord.charAt(i)));
+                existsLetters.put(i, String.valueOf(userWord.charAt(i)));
             } else {
                 builder.append("-");
                 wrongLetters.add(String.valueOf(userWord.charAt(i)));
             }
         }
 
-        userWords.add(userWord);
         return builder.toString();
     }
 
@@ -123,8 +121,6 @@ public class WordleGame {
         filterWordsByCorrectLetters(dictionaryWords);
         filterWordsByCorrectLettersAndPosition(dictionaryWords);
 
-        dictionaryWords.removeAll(userWords);
-
         return dictionaryWords.get(Helper.getRandom(0, dictionaryWords.size()));
     }
 
@@ -133,7 +129,6 @@ public class WordleGame {
      * @param dictionaryWords - словарь
      */
     private void filterWordsByWrongLetters(List<String> dictionaryWords) {
-        //отсеивание слов из словаря с неверными буквами
         for (String word : new ArrayList<>(dictionaryWords)) {
             for (String letter : wrongLetters) {
                 if (word.contains(letter)) {
@@ -145,14 +140,18 @@ public class WordleGame {
     }
 
     /**
-     * Отсеивание всех слов у которых нет угаданных букв
+     * Отсеивание всех слов у которых:
+     *      нет угаданных букв
+     *      есть, но на неверной позиции
      * @param dictionaryWords - словарь
      */
     private void filterWordsByCorrectLetters(List<String> dictionaryWords) {
-        //отсеивание слов из словаря у которых нет угаданных букв
         for (String word : new ArrayList<>(dictionaryWords)) {
-            for (String letter : existsLetters) {
-                if (!word.contains(letter)) {
+            for (Map.Entry<Integer, String> entry : existsLetters.entrySet()) {
+                if (!word.contains(entry.getValue())) {
+                    dictionaryWords.remove(word);
+                    break;
+                } else if (entry.getValue().equals(String.valueOf(word.charAt(entry.getKey())))) {
                     dictionaryWords.remove(word);
                     break;
                 }
